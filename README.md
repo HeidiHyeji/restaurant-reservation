@@ -1,3 +1,5 @@
 # Restaurant_reservation
-레스토랑 예약 시스템입니다.
-이 프로젝트는 소스코드 형상관리, 코드 리뷰를 학습하기 위해 사용되었습니다
+It's a simple restaurant reservation system.
+
+I am not the original author,and it was modified for studying software configuration management and code review.
+If there is a violation of a copyright, please email to gogo6076@naver.com
