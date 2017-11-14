@@ -6,76 +6,92 @@
  * McGraw-Hill (2004)
  */
 
-package booksys.presentation ;
+package booksys.presentation;
 
-import booksys.application.domain.Reservation ;
+import booksys.application.domain.Reservation;
 
-import java.awt.* ;
-import java.awt.event.* ;
+import java.awt.*;//배치관리자
+import java.awt.event.*;
 
-class ReservationDialog extends BookingDialog
-{
-  protected TextField name ;
-  protected TextField phone ;
-  protected Label     nameLabel ;
-  protected Label     phoneLabel ;
-  
-  ReservationDialog(Frame owner, String title)
-  {
-    this(owner, title, null) ;
-  }
+import javax.swing.*;
 
-  // This constructor initializes fields with data from an existing booking.
-  // This is useful for completing Exercise 7.6.
-  
-  ReservationDialog(Frame owner, String title, Reservation r)
-  {
-    super(owner, title, r) ;
+class ReservationDialog extends BookingDialog {
+	protected JTextField name;
+	protected JTextField phone;
+	protected JLabel nameLabel;
+	protected JLabel phoneLabel;
 
-    nameLabel = new Label("Name:", Label.RIGHT) ;
-    name = new TextField(30) ;
-    if (r != null) {
-      name.setText(r.getCustomer().getName()) ;
-    }
+	ReservationDialog(JFrame owner, String title) {
+		this(owner, title, null);
+	}
 
-    phoneLabel = new Label("Phone no:", Label.RIGHT) ;
-    phone = new TextField(15) ;
-    if (r != null) {
-      phone.setText(r.getCustomer().getPhoneNumber()) ;
-    }
-        
-    // Lay out components in dialog
-    
-    setLayout( new GridLayout(0, 2) ) ;
+	// This constructor initializes fields with data from an existing booking.
+	// This is useful for completing Exercise 7.6.
 
-    add(timeLabel) ;
-    add(time) ;
+	/**
+	 * @wbp.parser.constructor
+	 */
+	ReservationDialog(JFrame owner, String title, Reservation r) {
+		super(owner, title, r);
 
-    add(nameLabel) ;
-    add(name) ;
+		nameLabel = new JLabel("Name:", JLabel.RIGHT);
+		name = new JTextField(10);
+		if (r != null) {
+			name.setText(r.getCustomer().getName());
+		}
 
-    add(phoneLabel) ;
-    add(phone) ;
-    
-    add(coversLabel) ;
-    add(covers) ;
+		phoneLabel = new JLabel("Phone no:", JLabel.RIGHT);
+		phone = new JTextField(15);
+		if (r != null) {
+			phone.setText(r.getCustomer().getPhoneNumber());
+		}
 
-    add(tableNumberLabel) ;
-    add(tableNumber) ;
-    
-    add(ok) ;
-    add(cancel) ;
-    
-    pack() ;
-  }
+		// Lay out components in dialog
 
-  String getCustomerName()
-  {
-    return name.getText() ;
-  }
+		getContentPane().setLayout(new GridLayout(6, 1));
+		setSize(200, 400);
+		JPanel[]panel=new JPanel[6];
+		for(int i=0;i<panel.length;i++)
+			panel[i]=new JPanel();
+		panel[0].add(timeLabel);
+		panel[0].add(time);
+		getContentPane().add(panel[0]);
+		//getContentPane().add(timeLabel);
+		//getContentPane().add(time);
+		panel[1].add(nameLabel);
+		panel[1].add(name);
+		getContentPane().add(panel[1]);
+		//getContentPane().add(nameLabel);
+		//getContentPane().add(name);
+		panel[2].add(phoneLabel);
+		panel[2].add(phone);
+		getContentPane().add(panel[2]);
+		//getContentPane().add(phoneLabel);
+		//getContentPane().add(phone);
+		panel[3].add(coversLabel);
+		panel[3].add(covers);
+		getContentPane().add(panel[3]);
+		//getContentPane().add(coversLabel);
+		//getContentPane().add(covers);
+		panel[4].add(tableNumberLabel);
+		panel[4].add(tableNumber);
+		getContentPane().add(panel[4]);
+		//getContentPane().add(tableNumberLabel);
+		//getContentPane().add(tableNumber);
+		panel[5].add(ok);
+		panel[5].add(cancel);
+		getContentPane().add(panel[5]);
+		//getContentPane().add(ok);
+		//getContentPane().add(cancel);
 
-  String getPhoneNumber()
-  {
-    return phone.getText() ;
-  }
+		// pack() ;
+	}
+
+	String getCustomerName() {
+		return name.getText();
+	}
+
+	String getPhoneNumber() {
+		return phone.getText();
+	}
 }

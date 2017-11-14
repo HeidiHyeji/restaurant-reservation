@@ -12,5 +12,5 @@ import booksys.application.domain.* ;
 
 interface PersistentBooking extends Booking
 {
-  int getId() ;
+  int getId();
 }

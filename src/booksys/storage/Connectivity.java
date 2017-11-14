@@ -31,7 +31,7 @@ class Connectivity
     InputStream pfile = null ;
     Connection con = null ;
 
-    // Load in the property file
+    /**property file을 로드하기*/
     
     try {
       pfile = new FileInputStream(propFile) ;
@@ -51,7 +51,7 @@ class Connectivity
       }
     }
 
-    // Load the Driver class
+    /**드라이버 로드하기*/
     
     String driver = props.getProperty("jdbc.driver") ;
     try {
@@ -62,11 +62,13 @@ class Connectivity
       return con ;
     }
 
-    // Try to make a connection
+    /**드라이버 연결하기 & properties 파일로부터 DB user와 password 가져오기*/
     
     String dbURL = props.getProperty("jdbc.url") ;
+    String dbUser= props.getProperty("jdbc.user");
+    String dbPass= props.getProperty("jdbc.pass");
     try{
-      con = DriverManager.getConnection(dbURL) ;
+      con = DriverManager.getConnection(dbURL,dbUser,dbPass) ;
     }
     catch (SQLException e) {
       e.printStackTrace() ;

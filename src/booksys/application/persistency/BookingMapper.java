@@ -6,177 +6,129 @@
  * McGraw-Hill (2004)
  */
 
-package booksys.application.persistency ;
+package booksys.application.persistency;
 
-import booksys.application.domain.Booking ;
-import booksys.application.domain.Reservation ;
-import booksys.application.domain.Customer ;
-import booksys.application.domain.Table ;
-import booksys.storage.* ;
+import booksys.application.domain.Booking;
+import booksys.application.domain.Reservation;
+import booksys.application.domain.Customer;
+import booksys.application.domain.Table;
+import booksys.storage.*;
 
-import java.sql.* ;
-import java.util.Enumeration ;
-import java.util.Hashtable ;
-import java.util.Vector ;
+import java.sql.*;
+import java.util.Vector;
 
-public class BookingMapper
-{
-  // Singleton:
-  
-  private static BookingMapper uniqueInstance ;
+public class BookingMapper {
+	// 싱글톤 패턴
 
-  public static BookingMapper getInstance()
-  {
-    if (uniqueInstance == null) {
-      uniqueInstance = new BookingMapper() ;
-    }
-    return uniqueInstance ;
-  }
+	private static BookingMapper uniqueInstance;
 
-  public Vector getBookings(Date date)
-  {
-    Vector v = new Vector() ;
-    try
-    {
-      Statement stmt
-	= Database.getInstance().getConnection().createStatement() ;
-      ResultSet rset
-	= stmt.executeQuery("SELECT * FROM Reservation WHERE date='"
-			    + date + "'") ;
-      while (rset.next()) {
-	int oid = rset.getInt(1) ;
-	int covers = rset.getInt(2) ;
-	Date bdate = rset.getDate(3) ;
-	Time btime = rset.getTime(4) ;
-	int table = rset.getInt(5) ;
-	int cust = rset.getInt(6) ;
-	Time atime = rset.getTime(7) ;
-	PersistentTable t = TableMapper.getInstance().getTableForOid(table) ;
-	PersistentCustomer c =
-	  CustomerMapper.getInstance().getCustomerForOid(cust) ;
-	PersistentReservation r
-	  = new PersistentReservation(oid, covers, bdate, btime, t, c, atime) ;
-	v.add(r) ;
-      }
-      rset.close() ;
-      rset = stmt.executeQuery("SELECT * FROM WalkIn WHERE date='"
-			       + date + "'") ;
-      while (rset.next()) {
-	int oid = rset.getInt(1) ;
-	int covers = rset.getInt(2) ;
-	Date bdate = rset.getDate(3) ;
-	Time btime = rset.getTime(4) ;
-	int table = rset.getInt(5) ;
-	PersistentTable t = TableMapper.getInstance().getTableForOid(table) ;
-	PersistentWalkIn w
-	  = new PersistentWalkIn(oid, covers, bdate, btime, t) ;
-	v.add(w) ;
-      }
-      rset.close() ;
-     stmt.close() ;
-    }
-    catch (SQLException e) {
-      e.printStackTrace() ;
-    }
-    return v ;
-  }
-  
-  public PersistentReservation createReservation(int covers,
-						 Date date,
-						 Time time,
-						 Table table,
-						 Customer customer,
-						 Time arrivalTime)
-  {
-    int oid = Database.getInstance().getId() ;
-    performUpdate("INSERT INTO Reservation " + "VALUES ('"
-		  + oid + "', '"
-		  + covers + "', '"
-		  + date + "', '"
-		  + time + "', '"
-		  + ((PersistentTable) table).getId() + "', '"
-		  + ((PersistentCustomer) customer).getId() + "', "
-		  + (arrivalTime == null ? "NULL" :
-		     ("'" + arrivalTime.toString() + "'"))
-		  + ")" ) ;
-    return new PersistentReservation(oid,
-				     covers,
-				     date,
-				     time,
-				     table,
-				     customer,
-				     arrivalTime) ;
-  } 
-  
-  public PersistentWalkIn createWalkIn(int covers,
-				       Date date,
-				       Time time,
-				       Table table)
-  {
-    int oid = Database.getInstance().getId() ;
-    performUpdate("INSERT INTO WalkIn " + "VALUES ('"
-		  + oid + "', '"
-		  + covers + "', '"
-		  + date + "', '"
-		  + time + "', '"
-		  + ((PersistentTable) table).getId() + "')" ) ;
-    return new PersistentWalkIn(oid, covers, date, time, table) ;
-  } 
+	public static BookingMapper getInstance() {
+		if (uniqueInstance == null) {
+			uniqueInstance = new BookingMapper();
+		}
+		return uniqueInstance;
+	}
+	/**DB에서 date에 맞는 Booking(Reservation과 WalkIn)을 가져오기*/
+	public Vector getBookings(Date date) {
+		Vector v = new Vector();
+		try {
+			Statement stmt = Database.getInstance().getConnection().createStatement();
+			ResultSet rset = stmt.executeQuery("SELECT * FROM Reservation WHERE date='" + date + "'");
+			while (rset.next()) {
+				int oid = rset.getInt(1); //결과값으로 얻은 rset의 어트리뷰트를 하나씩 받아
+				int covers = rset.getInt(2);
+				Date bdate = rset.getDate(3);
+				Time btime = rset.getTime(4);
+				int table = rset.getInt(5);
+				int cust = rset.getInt(6);
+				Time atime = rset.getTime(7);
+				PersistentTable t = TableMapper.getInstance().getTableForOid(table);
+				PersistentCustomer c = CustomerMapper.getInstance().getCustomerForOid(cust);
+				PersistentReservation r = new PersistentReservation(oid, covers, bdate, btime, t, c, atime);
+				v.add(r); //하나의 PersistentReservation을 생성하고// Vector로 모으기
+			}
+			rset.close();
+			rset = stmt.executeQuery("SELECT * FROM WalkIn WHERE date='" + date + "'");
+			while (rset.next()) {
+				int oid = rset.getInt(1);//결과값으로 얻은 rset의 어트리뷰트를 하나씩 받아
+				int covers = rset.getInt(2);
+				Date bdate = rset.getDate(3);
+				Time btime = rset.getTime(4);
+				int table = rset.getInt(5);
+				PersistentTable t = TableMapper.getInstance().getTableForOid(table);
+				PersistentWalkIn w = new PersistentWalkIn(oid, covers, bdate, btime, t);
+				v.add(w);//하나의 PersistentWalkIn을 생성하고// Vector로 모으기
+			}
+			rset.close();
+			stmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return v;
+	}
+	/**DB에 Reservation 튜플 삽입*/
+	public PersistentReservation createReservation(int covers, Date date, Time time, Table table, Customer customer,
+			Time arrivalTime) {
+		int oid = Database.getInstance().getId();
+		performUpdate("INSERT INTO Reservation " + "VALUES ('" + oid + "', '" + covers + "', '" + date + "', '" + time
+				+ "', '" + ((PersistentTable) table).getId() + "', '" + ((PersistentCustomer) customer).getId() + "', "
+				+ (arrivalTime == null ? "NULL" : ("'" + arrivalTime.toString() + "'")) + ")");
+		return new PersistentReservation(oid, covers, date, time, table, customer, arrivalTime);
+	}
+	/**DB에 WalkIn 튜플 삽입*/
+	public PersistentWalkIn createWalkIn(int covers, Date date, Time time, Table table) {
+		int oid = Database.getInstance().getId();
+		performUpdate("INSERT INTO WalkIn " + "VALUES ('" + oid + "', '" + covers + "', '" + date + "', '" + time
+				+ "', '" + ((PersistentTable) table).getId() + "')");
+		return new PersistentWalkIn(oid, covers, date, time, table);
+	}
+	/**DB에 이미 등록되어있는 Booking을 업데이트*/
+	public void updateBooking(Booking b) {
+		PersistentBooking pb = (PersistentBooking) b;
+		boolean isReservation = b instanceof Reservation;
+		StringBuffer sql = new StringBuffer(128);
 
-  public void updateBooking(Booking b)
-  {
-    PersistentBooking pb = (PersistentBooking) b ;
-    boolean isReservation = b instanceof Reservation ;
-    StringBuffer sql = new StringBuffer(128) ;
-    
-    sql.append("UPDATE ") ;
-    sql.append(isReservation ? "Reservation" : "WalkIn") ;
-    sql.append(" SET ") ;
-    sql.append(" covers = ") ;
-    sql.append(pb.getCovers()) ;
-    sql.append(", date = '") ;
-    sql.append(pb.getDate().toString()) ;
-    sql.append("', time = '") ;
-    sql.append(pb.getTime().toString()) ;
-    sql.append("', table_id = ") ;
-    sql.append(((PersistentTable) pb.getTable()).getId()) ;
-    if (isReservation) {
-      PersistentReservation pr = (PersistentReservation) pb ;
-      sql.append(", customer_id = ") ;
-      sql.append(((PersistentCustomer) pr.getCustomer()).getId()) ;
-      sql.append(", arrivalTime = ") ;
-      Time atime = pr.getArrivalTime() ;
-      if (atime == null) {
-	sql.append("NULL") ;
-      }
-      else {
-	sql.append("'" + atime + "'") ;
-      }
-    }
-    sql.append(" WHERE oid = ") ;
-    sql.append(pb.getId()) ;
+		sql.append("UPDATE ");
+		sql.append(isReservation ? "Reservation" : "WalkIn");
+		sql.append(" SET ");
+		sql.append(" covers = ");
+		sql.append(pb.getCovers());
+		sql.append(", date = '");
+		sql.append(pb.getDate().toString());
+		sql.append("', time = '");
+		sql.append(pb.getTime().toString());
+		sql.append("', table_id = ");
+		sql.append(((PersistentTable) pb.getTable()).getId());
+		if (isReservation) {
+			PersistentReservation pr = (PersistentReservation) pb;
+			sql.append(", customer_id = ");
+			sql.append(((PersistentCustomer) pr.getCustomer()).getId());
+			sql.append(", arrivalTime = ");
+			Time atime = pr.getArrivalTime();
+			if (atime == null) {
+				sql.append("NULL");
+			} else {
+				sql.append("'" + atime + "'");
+			}
+		}
+		sql.append(" WHERE oid = ");
+		sql.append(pb.getId());
 
-    performUpdate(sql.toString()) ;
-  }
-  
-  public void deleteBooking(Booking b)
-  {
-    String table = b instanceof Reservation ? "Reservation" : "WalkIn" ;
-    performUpdate("DELETE FROM " + table + " WHERE oid = '"
-		  + ((PersistentBooking) b).getId() + "'" ) ;
-  }
-
-  private void performUpdate(String sql)
-  {
-    try {
-      Statement stmt
-	= Database.getInstance().getConnection().createStatement() ;
-      int updateCount
-	= stmt.executeUpdate(sql) ;
-      stmt.close() ;
-    }
-    catch (SQLException e) {
-      e.printStackTrace() ;
-    }
-  }
+		performUpdate(sql.toString());
+	}
+	/**DB에 등록된 Booking튜플을 삭제*/
+	public void deleteBooking(Booking b) {
+		String table = b instanceof Reservation ? "Reservation" : "WalkIn";
+		performUpdate("DELETE FROM " + table + " WHERE oid = '" + ((PersistentBooking) b).getId() + "'");
+	}
+	
+	private void performUpdate(String sql) {
+		try {
+			Statement stmt = Database.getInstance().getConnection().createStatement();
+			int updateCount = stmt.executeUpdate(sql);
+			stmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }
